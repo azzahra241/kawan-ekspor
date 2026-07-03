@@ -1,4 +1,5 @@
 import os
+import io
 from flask import Flask, render_template, request, jsonify
 import google.generativeai as genai
 from PIL import Image
@@ -7,6 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__, template_folder='.')
+
+handler = app
 
 GENAI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GENAI_API_KEY)
@@ -28,7 +31,8 @@ def generate_catalog():
         return jsonify({'error': 'File belum dipilih'}), 400
 
     try:
-        image = Image.open(file.stream)
+        image_bytes = file.read()
+        image = Image.open(io.BytesIO(image_bytes))
 
         model = genai.GenerativeModel('gemini-2.5-flash')
 
